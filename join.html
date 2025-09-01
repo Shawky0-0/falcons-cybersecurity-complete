@@ -287,7 +287,7 @@
                             <div class="flex items-start">
                                 <input type="checkbox" id="agreement" name="agreement" required class="mt-1 mr-3 text-cyber-blue focus:ring-cyber-blue">
                                 <label for="agreement" class="text-sm text-gray-300">
-                                    I agree to the <a href="#terms-details" class="text-cyber-blue hover:underline">Terms & Conditions</a> and understand that membership requires active participation in Falcons activities and maintaining academic standards. *
+                                    I agree to the <a href="#" id="open-terms" class="text-cyber-blue hover:underline">Terms & Conditions</a> and understand that membership requires active participation in Falcons activities and maintaining academic standards. *
                                 </label>
                             </div>
                             <div class="flex items-start">
@@ -297,18 +297,26 @@
                                 </label>
                             </div>
 
-                            <!-- Terms & Conditions (expandable) -->
-                            <details id="terms-details" class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4">
-                                <summary class="cursor-pointer font-orbitron text-cyber-blue font-semibold">Read Terms & Conditions</summary>
-                                <ul class="mt-4 list-disc list-inside text-gray-300 space-y-2 text-sm">
-                                    <li><span class="font-medium text-white">Active Participation</span> – I will engage in Falcons CIC activities (events, workshops, challenges, and community discussions) and contribute positively.</li>
-                                    <li><span class="font-medium text-white">Academic Standing</span> – I confirm that I am a current CIC student in good academic standing.</li>
-                                    <li><span class="font-medium text-white">Professional Conduct</span> – I will respect others, act with integrity, and follow CIC’s policies. Misconduct, harassment, or cheating may lead to removal.</li>
-                                    <li><span class="font-medium text-white">Confidentiality</span> – I will not misuse or share sensitive information from challenges, events, or internal discussions.</li>
-                                    <li><span class="font-medium text-white">Intellectual Property</span> – Materials and resources shared in Falcons CIC are for educational purposes only and cannot be redistributed without permission.</li>
-                                    <li><span class="font-medium text-white">Governance & Succession</span> – I understand that leadership roles are assigned through the internal points framework, and membership may be revoked if I fail to meet requirements.</li>
-                                </ul>
-                            </details>
+                            <!-- Terms & Conditions Modal -->
+                            <div id="termsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+                                <div class="bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-w-2xl w-[90%] p-6 relative" id="termsContent">
+                                    <button id="close-terms" class="absolute top-3 right-3 text-gray-400 hover:text-white" aria-label="Close Terms">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                    </button>
+                                    <h3 id="termsTitle" class="font-orbitron text-xl text-cyber-blue mb-4">Terms & Conditions</h3>
+                                    <ul class="list-disc list-inside text-gray-300 space-y-2 text-sm">
+                                        <li><span class="font-medium text-white">Active Participation</span> – I will engage in Falcons CIC activities (events, workshops, challenges, and community discussions) and contribute positively.</li>
+                                        <li><span class="font-medium text-white">Academic Standing</span> – I confirm that I am a current CIC student in good academic standing.</li>
+                                        <li><span class="font-medium text-white">Professional Conduct</span> – I will respect others, act with integrity, and follow CIC’s policies. Misconduct, harassment, or cheating may lead to removal.</li>
+                                        <li><span class="font-medium text-white">Confidentiality</span> – I will not misuse or share sensitive information from challenges, events, or internal discussions.</li>
+                                        <li><span class="font-medium text-white">Intellectual Property</span> – Materials and resources shared in Falcons CIC are for educational purposes only and cannot be redistributed without permission.</li>
+                                        <li><span class="font-medium text-white">Governance & Succession</span> – I understand that leadership roles are assigned through the internal points framework, and membership may be revoked if I fail to meet requirements.</li>
+                                    </ul>
+                                    <div class="text-right mt-6">
+                                        <button id="accept-terms" class="bg-gradient-to-r from-cyber-blue to-cyber-purple px-6 py-2 rounded-full font-semibold">Close</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Submit Button -->
@@ -496,6 +504,36 @@
             const form = document.getElementById('applicationForm');
             // Ensure the form targets the hidden iframe so the page doesn't navigate
             if (form) form.setAttribute('target', 'hidden_iframe');
+
+            // Terms & Conditions modal handlers
+            const termsModal = document.getElementById('termsModal');
+            const openTerms = document.getElementById('open-terms');
+            const closeTermsBtn = document.getElementById('close-terms');
+            const acceptTermsBtn = document.getElementById('accept-terms');
+
+            function openTermsModal(e) {
+                if (e) e.preventDefault();
+                if (!termsModal) return;
+                termsModal.classList.remove('hidden');
+                termsModal.classList.add('flex');
+            }
+            function closeTermsModal(e) {
+                if (e) e.preventDefault();
+                if (!termsModal) return;
+                termsModal.classList.add('hidden');
+                termsModal.classList.remove('flex');
+            }
+            openTerms?.addEventListener('click', openTermsModal);
+            closeTermsBtn?.addEventListener('click', closeTermsModal);
+            acceptTermsBtn?.addEventListener('click', closeTermsModal);
+            termsModal?.addEventListener('click', (ev) => {
+                if (ev.target === termsModal) closeTermsModal();
+            });
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Escape' && termsModal && !termsModal.classList.contains('hidden')) {
+                    closeTermsModal();
+                }
+            });
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
