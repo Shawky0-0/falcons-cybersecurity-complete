@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Defense Game - Falcons CIC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'monospace'],
+                        'exo': ['Exo 2', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            blue: '#00f5ff',
+                            purple: '#8a2be2',
+                            dark: '#0a0a0a',
+                            gray: '#1a1a1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .defense-node {
+            aspect-ratio: 1;
+            border: 2px solid #00f5ff;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .defense-node:hover {
+            border-color: #8a2be2;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+        
+        .defense-node.hacked {
+            border-color: #ff0000;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2) 0%, rgba(139, 0, 0, 0.2) 100%);
+            animation: pulse-red 1s infinite;
+        }
+        
+        .defense-node.secured {
+            border-color: #00ff00;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2) 0%, rgba(0, 139, 0, 0.2) 100%);
+            animation: pulse-green 1s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.8); }
+        }
+        
+        .threat-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .cyber-terminal {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            border: 1px solid #00f5ff;
+            border-radius: 8px;
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            color: #00ff00;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f5ff, #8a2be2);
+            transition: width 0.3s ease;
+        }
+        
+        .question-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .question-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 2px solid #00f5ff;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .answer-option {
+            padding: 1rem;
+            border: 1px solid #666;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .answer-option:hover {
+            border-color: #00f5ff;
+            background: rgba(0, 245, 255, 0.1);
+        }
+        
+        .answer-option.correct {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        .answer-option.incorrect {
+            border-color: #ff0000;
+            background: rgba(255, 0, 0, 0.1);
+        }
+        
+        .hack-animation {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 0, 0, 0.5) 50%, transparent 60%);
+            animation: hack-sweep 2s infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes hack-sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+    <style>
+        /* Disable animations/transitions in the game section */
+        main, .game-grid, .defense-node, .defense-node:hover,
+        .defense-node.hacked, .defense-node.secured,
+        .threat-indicator, .hack-animation,
+        .answer-option, .progress-fill {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        /* Stop hover motion/glow on nodes */
+        .defense-node:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: #00f5ff !important;
+        }
+
+        /* Remove pulsing/scan sweep and blinking indicators */
+        .hack-animation { display: none !important; }
+        .threat-indicator { animation: none !important; }
+
+        /* Keep static states without pulsing */
+        .defense-node.hacked,
+        .defense-node.secured {
+            animation: none !important;
+        }
+
+        /* Disable background grid and particles on this page */
+        body.no-bg-anim::before {
+            animation: none !important;
+            background: none !important;
+        }
+        #particles-js { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white overflow-x-hidden no-bg-anim">
+    <!-- Background particles -->
+    
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-md border-b border-cyber-blue/20 transition-all duration-300">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16">
+                <div class="flex items-center space-x-2 flex-shrink-0">
+                    <img src="../assets/images/logo-new.png" alt="Falcons Logo" class="h-16 w-16 animate-none">
+                    <span class="font-orbitron font-bold text-xl text-cyber-blue">FALCONS</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8 ml-auto">
+                    <a href="../index.html" class="text-white hover:text-cyber-blue transition-colors nav-link">Home</a>
+                    <a href="../about.html" class="text-white hover:text-cyber-blue transition-colors nav-link">About</a>
+                    <a href="../events.html" class="text-white hover:text-cyber-blue transition-colors nav-link">Events</a>
+                    <a href="../blog.html" class="text-white hover:text-cyber-blue transition-colors nav-link">Blog</a>
+                    <a href="../resources.html" class="text-white hover:text-cyber-blue transition-colors nav-link">Resources</a>
+                    <a href="index.html" class="text-cyber-blue nav-link active">Game</a>
+                    <a href="../join.html" class="bg-gradient-to-r from-cyber-blue to-cyber-purple px-6 py-2 rounded-full hover:shadow-lg hover:shadow-cyber-blue/25 transition-all">Join</a>
+                </div>
+
+                <button id="mobile-menu-btn" class="md:hidden ml-auto focus:outline-none" aria-expanded="false" aria-label="Toggle mobile menu">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden" aria-hidden="true">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-gray-800/95 backdrop-blur-md rounded-lg mt-2">
+                    <a href="../index.html" class="block px-3 py-2 text-white hover:text-cyber-blue">Home</a>
+                    <a href="../about.html" class="block px-3 py-2 text-white hover:text-cyber-blue">About</a>
+                    <a href="../events.html" class="block px-3 py-2 text-white hover:text-cyber-blue">Events</a>
+                    <a href="../blog.html" class="block px-3 py-2 text-white hover:text-cyber-blue">Blog</a>
+                    <a href="../resources.html" class="block px-3 py-2 text-white hover:text-cyber-blue">Resources</a>
+                    <a href="index.html" class="block px-3 py-2 text-cyber-blue">Game</a>
+                    <a href="../join.html" class="block px-3 py-2 text-center bg-gradient-to-r from-cyber-blue to-cyber-purple rounded-lg">Join</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Main Game Container -->
+    <main class="relative z-10 pt-20 pb-8">
+        <div class="max-w-7xl mx-auto px-4">
+            <!-- Game Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-orbitron font-bold mb-4 bg-gradient-to-r from-cyber-blue to-cyber-purple bg-clip-text text-transparent">
+                    CYBER DEFENSE COMMAND
+                </h1>
+                <p class="text-lg text-gray-300 mb-6">
+                    Defend your network from incoming cyber threats. Answer security questions to secure vulnerable nodes.
+                </p>
+            </div>
+
+            <!-- Game Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-xl md:text-2xl font-bold text-cyber-blue" id="score">0</div>
+                    <div class="text-xs md:text-sm text-gray-400">Score</div>
+                </div>
+                <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-xl md:text-2xl font-bold text-green-400" id="secured">0</div>
+                    <div class="text-xs md:text-sm text-gray-400">Secured</div>
+                </div>
+                <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-xl md:text-2xl font-bold text-red-400" id="breached">0</div>
+                    <div class="text-xs md:text-sm text-gray-400">Breached</div>
+                </div>
+                <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-xl md:text-2xl font-bold text-yellow-400" id="level">1</div>
+                    <div class="text-xs md:text-sm text-gray-400">Level</div>
+                </div>
+            </div>
+
+            <!-- Game Area -->
+            <div class="grid lg:grid-cols-3 gap-6 md:gap-8 mb-8">
+                <!-- Network Grid -->
+                <div class="lg:col-span-2">
+                    <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4 md:p-6">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                            <h2 class="text-lg md:text-xl font-orbitron font-bold text-white">Network Infrastructure</h2>
+                            <div class="text-sm text-gray-400">
+                                Time: <span id="game-timer" class="text-cyber-blue font-mono">00:00</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4" id="network-grid">
+                            <!-- Network nodes will be generated here -->
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="security-progress" style="width: 100%"></div>
+                        </div>
+                        <div class="text-center mt-2 text-sm text-gray-400">
+                            Network Security: <span id="security-percentage">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Command Terminal -->
+                <div>
+                    <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-4 md:p-6 mb-6">
+                        <h3 class="text-base md:text-lg font-orbitron font-bold mb-4 text-white">System Status</h3>
+                        <div class="cyber-terminal" id="terminal">
+                            <div class="text-cyber-blue">[SYSTEM] Cyber Defense Command initialized</div>
+                            <div class="text-cyber-blue">[STATUS] All systems operational</div>
+                            <div class="text-yellow-400">[ALERT] Monitoring for threats...</div>
+                        </div>
+                    </div>
+
+                    <!-- Game Controls -->
+                    <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-6">
+                        <h3 class="text-lg font-orbitron font-bold mb-4 text-white">Command Center</h3>
+                        <div class="space-y-3">
+                            <button id="start-game" class="w-full bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all">
+                                Start Defense
+                            </button>
+                            <button id="pause-game" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all" disabled>
+                                Pause
+                            </button>
+                            <button id="reset-game" class="w-full bg-gradient-to-r from-red-500 to-red-600 px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all">
+                                Reset Network
+                            </button>
+                            <button id="leaderboard-btn" class="w-full bg-gradient-to-r from-cyber-blue to-cyber-purple px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all">
+                                Leaderboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-lg p-6">
+                <h2 class="text-2xl font-orbitron font-bold mb-6 text-center text-white">Top Defenders</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-600">
+                                <th class="text-left py-2 text-cyber-blue">Rank</th>
+                                <th class="text-left py-2 text-cyber-blue">Player</th>
+                                <th class="text-left py-2 text-cyber-blue">Score</th>
+                                <th class="text-left py-2 text-cyber-blue">Level</th>
+                                <th class="text-left py-2 text-cyber-blue">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <tr>
+                                <td class="py-2">🥇</td>
+                                <td class="py-2 text-yellow-400 font-bold">CyberHawk_Pro</td>
+                                <td class="py-2">15,420</td>
+                                <td class="py-2">12</td>
+                                <td class="py-2">08:42</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">🥈</td>
+                                <td class="py-2 text-gray-300 font-bold">SecurityNinja</td>
+                                <td class="py-2">12,880</td>
+                                <td class="py-2">10</td>
+                                <td class="py-2">11:15</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">🥉</td>
+                                <td class="py-2 text-orange-400 font-bold">FalconGuard</td>
+                                <td class="py-2">11,250</td>
+                                <td class="py-2">9</td>
+                                <td class="py-2">13:28</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">4</td>
+                                <td class="py-2 text-white">ThreatHunter</td>
+                                <td class="py-2">9,760</td>
+                                <td class="py-2">8</td>
+                                <td class="py-2">16:33</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">5</td>
+                                <td class="py-2 text-white">NetworkDefender</td>
+                                <td class="py-2">8,420</td>
+                                <td class="py-2">7</td>
+                                <td class="py-2">19:45</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Question Modal -->
+    <div class="question-modal" id="question-modal">
+        <div class="question-content">
+            <h3 class="text-2xl font-orbitron font-bold mb-4 text-cyber-blue">Security Challenge</h3>
+            <div id="question-text" class="text-lg mb-6 text-white"></div>
+            <div id="answer-options" class="space-y-3 mb-6"></div>
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-400">
+                    Time remaining: <span id="question-timer" class="text-red-400 font-mono">30s</span>
+                </div>
+                <button id="skip-question" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors">
+                    Skip (-50 points)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="../assets/js/data-manager.js"></script>
+    <script src="../assets/js/main.js"></script>
+
+    <script>
+        // Game state
+        let gameState = {
+            isRunning: false,
+            isPaused: false,
+            score: 0,
+            level: 1,
+            securedNodes: 0,
+            breachedNodes: 0,
+            gameTime: 0,
+            currentQuestion: null,
+            questionTimer: 30,
+            networkHealth: 100,
+            threatLevel: 1,
+            inQuestion: false,
+            questionIntervalId: null,
+            questionPool: []
+        };
+
+        // Track scheduled hack timeouts per node
+        let hackTimeouts = {};
+
+        // Cybersecurity questions database
+        let questions = [];
+        
+        // Load questions
+        function loadGameQuestions() {
+            // Use built-in question database
+            questions = [
+                { question: "nmap -sS performs which type of scan?", options: ["UDP scan","Xmas scan","SYN (half-open) scan","FIN scan"], correct: 2, category: "Tools - nmap" },
+                { question: "Which nmap flag increases timing for faster scans?", options: ["-T4","-A","-O","-sV"], correct: 0, category: "Tools - nmap" },
+                { question: "nmap -sV primarily does what?", options: ["OS detection","Service/version detection","Ping sweep","Aggressive scan"], correct: 1, category: "Tools - nmap" },
+                { question: "What does nmap -O attempt?", options: ["Open ports only","OS fingerprinting","Output to file","Only top 100 ports"], correct: 1, category: "Tools - nmap" },
+                { question: "Which tool uses the -A flag for aggressive scan (scripts, OS, version, traceroute)?", options: ["hydra","burpsuite","nmap","nikto"], correct: 2, category: "Tools - nmap" },
+
+                { question: "SQLMap: which option specifies the target URL?", options: ["-u","-p","--level","--risk"], correct: 0, category: "Tools - sqlmap" },
+                { question: "SQLMap: which flag is used to enumerate databases after detection?", options: ["--dump","--dbs","--tables","--columns"], correct: 1, category: "Tools - sqlmap" },
+                { question: "SQLMap: what does --risk control?", options: ["Payload aggressiveness","Network retries","Timeout","Proxy usage"], correct: 0, category: "Tools - sqlmap" },
+                { question: "SQLMap: which switch attempts to get OS shell?", options: ["--os-shell","--file-write","--tamper","--fresh-queries"], correct: 0, category: "Tools - sqlmap" },
+
+                { question: "Hydra: which flags specify username and password lists?", options: ["-L and -P","-u and -p","--user and --pass","-U and -W"], correct: 0, category: "Tools - hydra" },
+                { question: "Hydra: what does -t control?", options: ["Timeout","Targets","Tasks/threads","TLS mode"], correct: 2, category: "Tools - hydra" },
+                { question: "Hydra: typical module name for SSH login?", options: ["ssh","sshd","ssh-login","ssh-brute"], correct: 0, category: "Tools - hydra" },
+
+                { question: "Wireshark display filter to show only TCP traffic on port 80?", options: ["tcp.port==80","tcp==80","port.tcp==80","tcp:80"], correct: 0, category: "Tools - wireshark" },
+                { question: "Which capture filter syntax is valid for port 53 DNS?", options: ["capture tcp port 53","tcp port 53","dns.port=53","udp.port==53"], correct: 1, category: "Tools - wireshark" },
+                { question: "Wireshark: follow TCP stream is used to?", options: ["Decode TLS","Reassemble a flow","List endpoints","Show ARP cache"], correct: 1, category: "Tools - wireshark" },
+
+                { question: "Burp Suite: which tool maps endpoints by crawling?", options: ["Intruder","Repeater","Spider/Crawler","Sequencer"], correct: 2, category: "Tools - burp" },
+                { question: "Burp: Intruder attack type to try lists pairwise per position?", options: ["Sniper","Battering ram","Pitchfork","Cluster bomb"], correct: 2, category: "Tools - burp" },
+                { question: "Burp: which tab is best for manual request editing and replay?", options: ["Repeater","Proxy","Decoder","Comparer"], correct: 0, category: "Tools - burp" },
+
+                { question: "Metasploit: command to search modules?", options: ["modules","use","search","info"], correct: 2, category: "Tools - metasploit" },
+                { question: "Metasploit: set RHOSTS is used to?", options: ["Set target hosts","Set payload name","Set local port","Set encoder"], correct: 0, category: "Tools - metasploit" },
+                { question: "msfvenom: create Windows x64 reverse TCP payload?", options: ["-p windows/x64/meterpreter/reverse_tcp","-p linux/x64/meterpreter/reverse_tcp","-p windows/meterpreter/reverse_https","-p windows/shell_reverse_tcp"], correct: 0, category: "Tools - metasploit" },
+
+                { question: "Linux: which command finds SUID binaries recursively from /?", options: ["find / -perm -4000 -type f 2>/dev/null","grep -r suid /","ls -l suid /","chmod -s /"], correct: 0, category: "Linux" },
+                { question: "SSH: which option specifies private key file?", options: ["-K","-i","-k","--keyfile"], correct: 1, category: "Linux" },
+                { question: "Curl: follow redirects requires which flag?", options: ["-I","-L","-k","-s"], correct: 1, category: "HTTP" },
+
+                { question: "JWT: which part is base64url encoded header?", options: ["First","Second","Third","None"], correct: 0, category: "Web" },
+                { question: "XSS: which header helps mitigate reflected XSS?", options: ["X-Frame-Options","Content-Security-Policy","X-Content-Type-Options","Referrer-Policy"], correct: 1, category: "Web" },
+                { question: "Command injection: safest remediation pattern?", options: ["Blacklist input","Whitelist and parameterize","Double-escape input","Trim and sanitize"], correct: 1, category: "Web" },
+
+                { question: "TCP: which flag combination indicates connection reset?", options: ["RST","FIN","PSH,ACK","SYN,ACK"], correct: 0, category: "Networking" },
+                { question: "TLS: which port is default for HTTPS?", options: ["443","8443","444","80"], correct: 0, category: "Networking" },
+                { question: "DNS: which record type maps name to IPv4?", options: ["AAAA","CNAME","A","TXT"], correct: 2, category: "Networking" }
+            ];
+        }
+
+        // Utility: shuffle array (Fisher–Yates)
+        function shuffleArray(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function buildQuestionPool() {
+            gameState.questionPool = shuffleArray(questions);
+        }
+
+        // Game initialization
+        function initGame() {
+            // Load questions first
+            loadGameQuestions();
+            buildQuestionPool();
+            
+            createNetworkGrid();
+            resetGameState();
+            updateUI();
+            
+            // Event listeners
+            document.getElementById('start-game').addEventListener('click', startGame);
+            document.getElementById('pause-game').addEventListener('click', pauseGame);
+            document.getElementById('reset-game').addEventListener('click', resetGame);
+            document.getElementById('skip-question').addEventListener('click', skipQuestion);
+        }
+
+        // Anime.js helpers (used only for numeric and width tweens)
+        function animateNumber(el, newValue, duration = 450) {
+            const current = parseInt((el.dataset.value || el.textContent || '0').toString().replace(/,/g, ''), 10) || 0;
+            const target = Math.max(0, Number(newValue) || 0);
+            if (typeof anime === 'undefined' || current === target) {
+                el.textContent = target.toLocaleString();
+                el.dataset.value = String(target);
+                return;
+            }
+            const obj = { val: current };
+            anime({
+                targets: obj,
+                val: target,
+                round: 1,
+                duration,
+                easing: 'easeOutQuad',
+                update: () => {
+                    el.textContent = Math.round(obj.val).toLocaleString();
+                },
+                complete: () => {
+                    el.textContent = target.toLocaleString();
+                    el.dataset.value = String(target);
+                }
+            });
+        }
+
+        function animateWidth(el, percent, duration = 450) {
+            const clamped = Math.max(0, Math.min(100, Number(percent) || 0));
+            if (typeof anime === 'undefined') {
+                el.style.width = clamped + '%';
+                return;
+            }
+            anime({
+                targets: el,
+                width: clamped + '%',
+                duration,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        function createNetworkGrid() {
+            const grid = document.getElementById('network-grid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const node = document.createElement('div');
+                node.className = 'defense-node';
+                node.dataset.nodeId = i;
+                node.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-2xl mb-2">🛡️</div>
+                        <div class="text-xs">Node ${i + 1}</div>
+                    </div>
+                `;
+                node.addEventListener('click', () => nodeClicked(i));
+                grid.appendChild(node);
+            }
+        }
+
+        function startGame() {
+            if (gameState.isPaused) {
+                gameState.isPaused = false;
+                // Reschedule hack countdowns for existing threats
+                const nodes = document.querySelectorAll('.defense-node');
+                nodes.forEach((node, idx) => {
+                    if (node.querySelector('.threat-indicator') && !node.classList.contains('secured') && !node.classList.contains('hacked')) {
+                        scheduleHackCountdown(idx);
+                    }
+                });
+            } else {
+                resetGameState();
+            }
+            
+            gameState.isRunning = true;
+            
+            // Update buttons
+            document.getElementById('start-game').disabled = true;
+            document.getElementById('pause-game').disabled = false;
+            
+            // Start game timers
+            startGameLoop();
+            
+            addTerminalMessage('[SYSTEM] Defense protocols activated', 'text-green-400');
+            addTerminalMessage('[STATUS] Monitoring network for threats...', 'text-cyber-blue');
+        }
+
+        function pauseGame() {
+            gameState.isPaused = true;
+            gameState.isRunning = false;
+            
+            document.getElementById('start-game').disabled = false;
+            document.getElementById('pause-game').disabled = true;
+            
+            addTerminalMessage('[SYSTEM] Defense paused', 'text-yellow-400');
+            // Freeze any pending hacks while paused
+            clearAllHackTimeouts();
+        }
+
+        function resetGame() {
+            resetGameState();
+            createNetworkGrid();
+            updateUI();
+            
+            document.getElementById('start-game').disabled = false;
+            document.getElementById('pause-game').disabled = true;
+            
+            addTerminalMessage('[SYSTEM] Network reset complete', 'text-cyber-blue');
+            addTerminalMessage('[STATUS] All systems restored', 'text-green-400');
+        }
+
+        function resetGameState() {
+            if (gameState && gameState.questionIntervalId) {
+                clearInterval(gameState.questionIntervalId);
+            }
+            clearAllHackTimeouts();
+            gameState = {
+                isRunning: false,
+                isPaused: false,
+                score: 0,
+                level: 1,
+                securedNodes: 0,
+                breachedNodes: 0,
+                gameTime: 0,
+                currentQuestion: null,
+                questionTimer: 30,
+                networkHealth: 100,
+                threatLevel: 1,
+                inQuestion: false,
+                questionIntervalId: null,
+                questionPool: shuffleArray(questions)
+            };
+        }
+
+        function startGameLoop() {
+            const gameInterval = setInterval(() => {
+                if (!gameState.isRunning || gameState.isPaused) {
+                    clearInterval(gameInterval);
+                    return;
+                }
+                
+                gameState.gameTime++;
+                updateTimer();
+                
+                // Spawn threats based on level (skip while in question)
+                if (!gameState.inQuestion && gameState.gameTime % Math.max(5 - gameState.level, 2) === 0) {
+                    spawnThreat();
+                }
+                
+                // Check win condition
+                if (gameState.securedNodes >= 9) {
+                    levelUp();
+                }
+                
+                // Check lose condition
+                if (gameState.networkHealth <= 0) {
+                    gameOver();
+                    clearInterval(gameInterval);
+                }
+                
+            }, 1000);
+        }
+
+        function spawnThreat() {
+            if (gameState.inQuestion) return;
+            const availableNodes = [];
+            const nodes = document.querySelectorAll('.defense-node');
+            
+            nodes.forEach((node, index) => {
+                if (!node.classList.contains('hacked') && !node.classList.contains('secured')) {
+                    availableNodes.push(index);
+                }
+            });
+            
+            if (availableNodes.length === 0) return;
+            
+            const randomNode = availableNodes[Math.floor(Math.random() * availableNodes.length)];
+            const node = nodes[randomNode];
+            // Avoid duplicating threat indicators on the same node
+            if (node.querySelector('.threat-indicator')) {
+                return;
+            }
+            
+            // Add threat indicator
+            const threatIndicator = document.createElement('div');
+            threatIndicator.className = 'threat-indicator';
+            node.appendChild(threatIndicator);
+            
+            addTerminalMessage(`[THREAT] Cyber attack detected on Node ${randomNode + 1}!`, 'text-red-400');
+            // Start or restart hack countdown for this node
+            scheduleHackCountdown(randomNode);
+        }
+
+        function scheduleHackCountdown(nodeIndex) {
+            // Clear any existing countdown for this node
+            if (hackTimeouts[nodeIndex]) {
+                clearTimeout(hackTimeouts[nodeIndex]);
+                delete hackTimeouts[nodeIndex];
+            }
+            const timeoutId = setTimeout(() => {
+                const node = document.querySelector(`[data-node-id="${nodeIndex}"]`);
+                // Only hack if game is running, not paused, no question open, and indicator still present
+                if (
+                    node &&
+                    gameState.isRunning &&
+                    !gameState.isPaused &&
+                    !gameState.inQuestion &&
+                    !node.classList.contains('secured')
+                ) {
+                    const indicator = node.querySelector('.threat-indicator');
+                    if (indicator) {
+                        hackNode(nodeIndex);
+                    }
+                }
+                delete hackTimeouts[nodeIndex];
+            }, 5000);
+            hackTimeouts[nodeIndex] = timeoutId;
+        }
+
+        function clearAllHackTimeouts() {
+            for (const key in hackTimeouts) {
+                clearTimeout(hackTimeouts[key]);
+                delete hackTimeouts[key];
+            }
+        }
+
+        function hackNode(nodeId) {
+            const node = document.querySelector(`[data-node-id="${nodeId}"]`);
+            if (hackTimeouts[nodeId]) {
+                clearTimeout(hackTimeouts[nodeId]);
+                delete hackTimeouts[nodeId];
+            }
+            node.classList.add('hacked');
+            
+            // Add hack animation
+            const hackAnim = document.createElement('div');
+            hackAnim.className = 'hack-animation';
+            node.appendChild(hackAnim);
+            
+            node.innerHTML = `
+                <div class="text-center">
+                    <div class="text-2xl mb-2">💀</div>
+                    <div class="text-xs">BREACHED</div>
+                </div>
+            `;
+            
+            gameState.breachedNodes++;
+            gameState.networkHealth -= 15;
+            
+            addTerminalMessage(`[CRITICAL] Node ${nodeId + 1} has been compromised!`, 'text-red-400');
+            updateUI();
+        }
+
+        function nodeClicked(nodeId) {
+            if (!gameState.isRunning || gameState.isPaused) return;
+            if (gameState.inQuestion) return;
+            
+            const node = document.querySelector(`[data-node-id="${nodeId}"]`);
+            
+            if (node.classList.contains('hacked') || node.classList.contains('secured')) {
+                return;
+            }
+            
+            // Check if there's a threat
+            const threatIndicator = node.querySelector('.threat-indicator');
+            if (threatIndicator) {
+                showQuestion(nodeId);
+            }
+        }
+
+        function showQuestion(nodeId) {
+            // Draw next question from pool; rebuild if empty
+            if (!gameState.questionPool || gameState.questionPool.length === 0) {
+                buildQuestionPool();
+            }
+            const nextQ = gameState.questionPool.shift();
+            gameState.currentQuestion = { ...nextQ, nodeId };
+            gameState.questionTimer = 30;
+            gameState.inQuestion = true;
+            // Freeze hacks while answering
+            clearAllHackTimeouts();
+            
+            document.getElementById('question-text').textContent = nextQ.question;
+            
+            const optionsContainer = document.getElementById('answer-options');
+            optionsContainer.innerHTML = '';
+            
+            nextQ.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'answer-option';
+                optionDiv.textContent = option;
+                optionDiv.addEventListener('click', () => answerQuestion(index, nodeId));
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('question-modal').style.display = 'flex';
+            
+            // Start question timer
+            if (gameState.questionIntervalId) {
+                clearInterval(gameState.questionIntervalId);
+                gameState.questionIntervalId = null;
+            }
+            gameState.questionIntervalId = setInterval(() => {
+                gameState.questionTimer--;
+                document.getElementById('question-timer').textContent = `${gameState.questionTimer}s`;
+                
+                if (gameState.questionTimer <= 0) {
+                    clearInterval(gameState.questionIntervalId);
+                    gameState.questionIntervalId = null;
+                    answerQuestion(-1, nodeId); // Time's up
+                }
+            }, 1000);
+        }
+
+        function answerQuestion(selectedIndex, nodeId) {
+            const correct = gameState.currentQuestion.correct;
+            const options = document.querySelectorAll('.answer-option');
+            if (gameState.questionIntervalId) {
+                clearInterval(gameState.questionIntervalId);
+                gameState.questionIntervalId = null;
+            }
+            
+            if (selectedIndex === correct) {
+                options[selectedIndex].classList.add('correct');
+                secureNode(nodeId);
+                gameState.score += 100 * gameState.level;
+                addTerminalMessage(`[SUCCESS] Node ${nodeId + 1} secured! +${100 * gameState.level} points`, 'text-green-400');
+            } else {
+                if (selectedIndex >= 0) {
+                    options[selectedIndex].classList.add('incorrect');
+                }
+                options[correct].classList.add('correct');
+                hackNode(nodeId);
+                addTerminalMessage(`[FAILED] Incorrect answer. Node ${nodeId + 1} compromised!`, 'text-red-400');
+            }
+            
+            setTimeout(() => {
+                document.getElementById('question-modal').style.display = 'none';
+                gameState.currentQuestion = null;
+                gameState.inQuestion = false;
+                // Resume hack countdowns for any active threats
+                const nodes = document.querySelectorAll('.defense-node');
+                nodes.forEach((node, idx) => {
+                    if (node.querySelector('.threat-indicator') && !node.classList.contains('secured') && !node.classList.contains('hacked')) {
+                        scheduleHackCountdown(idx);
+                    }
+                });
+            }, 2000);
+            
+            updateUI();
+        }
+
+        function secureNode(nodeId) {
+            const node = document.querySelector(`[data-node-id="${nodeId}"]`);
+            node.classList.add('secured');
+            if (hackTimeouts[nodeId]) {
+                clearTimeout(hackTimeouts[nodeId]);
+                delete hackTimeouts[nodeId];
+            }
+            
+            // Remove threat indicator
+            const threatIndicator = node.querySelector('.threat-indicator');
+            if (threatIndicator) {
+                threatIndicator.remove();
+            }
+            
+            node.innerHTML = `
+                <div class="text-center">
+                    <div class="text-2xl mb-2">✅</div>
+                    <div class="text-xs">SECURED</div>
+                </div>
+            `;
+            
+            gameState.securedNodes++;
+        }
+
+        function skipQuestion() {
+            if (gameState.currentQuestion) {
+                gameState.score = Math.max(0, gameState.score - 50);
+                hackNode(gameState.currentQuestion.nodeId);
+                addTerminalMessage(`[SKIPPED] Question skipped. Node compromised! -50 points`, 'text-yellow-400');
+                
+                document.getElementById('question-modal').style.display = 'none';
+                gameState.currentQuestion = null;
+                if (gameState.questionIntervalId) {
+                    clearInterval(gameState.questionIntervalId);
+                    gameState.questionIntervalId = null;
+                }
+                gameState.inQuestion = false;
+                const nodes = document.querySelectorAll('.defense-node');
+                nodes.forEach((node, idx) => {
+                    if (node.querySelector('.threat-indicator') && !node.classList.contains('secured') && !node.classList.contains('hacked')) {
+                        scheduleHackCountdown(idx);
+                    }
+                });
+                updateUI();
+            }
+        }
+
+        function levelUp() {
+            gameState.level++;
+            gameState.securedNodes = 0;
+            gameState.breachedNodes = 0;
+            gameState.networkHealth = 100;
+            gameState.score += 500 * gameState.level;
+            // Reset timers/questions and pending hacks when advancing levels
+            if (gameState.questionIntervalId) {
+                clearInterval(gameState.questionIntervalId);
+                gameState.questionIntervalId = null;
+            }
+            gameState.inQuestion = false;
+            clearAllHackTimeouts();
+            // Ensure modal is hidden
+            const modalEl = document.getElementById('question-modal');
+            if (modalEl) modalEl.style.display = 'none';
+            
+            createNetworkGrid();
+            addTerminalMessage(`[LEVEL UP] Advanced to Level ${gameState.level}! +${500 * gameState.level} bonus points`, 'text-cyber-blue');
+            addTerminalMessage('[STATUS] Network infrastructure upgraded', 'text-green-400');
+        }
+
+        function gameOver() {
+            gameState.isRunning = false;
+            
+            document.getElementById('start-game').disabled = false;
+            document.getElementById('pause-game').disabled = true;
+            
+            addTerminalMessage('[GAME OVER] Network compromised!', 'text-red-400');
+            addTerminalMessage(`[FINAL SCORE] ${gameState.score} points`, 'text-cyber-blue');
+            // Clean up timers and question state
+            if (gameState.questionIntervalId) {
+                clearInterval(gameState.questionIntervalId);
+                gameState.questionIntervalId = null;
+            }
+            gameState.inQuestion = false;
+            clearAllHackTimeouts();
+            // Hide modal if visible
+            const modalEl2 = document.getElementById('question-modal');
+            if (modalEl2) modalEl2.style.display = 'none';
+            
+            // Update leaderboard
+            updateLeaderboard();
+            
+            // Show game over modal
+            setTimeout(() => {
+                alert(`Game Over!\n\nFinal Score: ${gameState.score}\nLevel Reached: ${gameState.level}\nTime Survived: ${formatTime(gameState.gameTime)}\n\nWell defended, cyber warrior!`);
+            }, 1000);
+        }
+
+        function updateUI() {
+            // Numeric values
+            animateNumber(document.getElementById('score'), gameState.score);
+            document.getElementById('secured').textContent = gameState.securedNodes;
+            document.getElementById('breached').textContent = gameState.breachedNodes;
+            document.getElementById('level').textContent = gameState.level;
+
+            // Progress
+            document.getElementById('security-percentage').textContent = `${gameState.networkHealth}%`;
+            animateWidth(document.getElementById('security-progress'), gameState.networkHealth);
+        }
+
+        function updateTimer() {
+            document.getElementById('game-timer').textContent = formatTime(gameState.gameTime);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function addTerminalMessage(message, className = 'text-cyber-blue') {
+            const terminal = document.getElementById('terminal');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = className;
+            messageDiv.textContent = message;
+            
+            terminal.appendChild(messageDiv);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Keep only last 10 messages
+            while (terminal.children.length > 10) {
+                terminal.removeChild(terminal.firstChild);
+            }
+        }
+
+        function updateLeaderboard() {
+            const playerName = prompt("Enter your name for the leaderboard:") || "Anonymous";
+            const scoreData = {
+                player: playerName,
+                score: gameState.score,
+                level: gameState.level,
+                time: formatTime(gameState.gameTime),
+                lastPlayed: new Date().toISOString(),
+                totalGames: 1,
+                correctAnswers: gameState.score // Approximate based on score
+            };
+            
+            // Save to local game storage
+            let leaderboard = JSON.parse(localStorage.getItem('cyberDefenseLeaderboard')) || [];
+            leaderboard.push({
+                name: playerName,
+                score: gameState.score,
+                level: gameState.level,
+                time: formatTime(gameState.gameTime),
+                timestamp: Date.now()
+            });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10); // Keep top 10
+            
+            localStorage.setItem('cyberDefenseLeaderboard', JSON.stringify(leaderboard));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            let leaderboard = [];
+            
+            // Get from local storage
+            leaderboard = JSON.parse(localStorage.getItem('cyberDefenseLeaderboard')) || [];
+            
+            const tbody = document.getElementById('leaderboard-body');
+            
+            if (leaderboard.length === 0) return;
+            
+            tbody.innerHTML = '';
+            
+            leaderboard.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+                const nameClass = index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-orange-400' : 'text-white';
+                
+                // Handle both data system format (player) and local storage format (name)
+                const playerName = entry.name || 'Anonymous';
+                
+                row.innerHTML = `
+                    <td class="py-2">${rankEmoji}</td>
+                    <td class="py-2 ${nameClass} font-bold">${playerName}</td>
+                    <td class="py-2">${entry.score.toLocaleString()}</td>
+                    <td class="py-2">${entry.level}</td>
+                    <td class="py-2">${entry.time}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            displayLeaderboard();
+        });
+    </script>
+</body>
+</html>

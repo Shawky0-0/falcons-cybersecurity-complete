@@ -1,0 +1,26 @@
+{
+  "name": "falcons-cybersecurity",
+  "version": "1.0.0",
+  "description": "Falcons Cybersecurity Student Community Website",
+  "main": "index.html",
+  "homepage": "https://falcons-eg.tech",
+  "scripts": {
+  "start": "node server.js",
+  "serve": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/falcons-cic/website"
+  },
+  "keywords": [
+    "cybersecurity",
+    "student-community",
+    "education",
+    "vanilla-js",
+    "falcons",
+    "cic"
+  ],
+  "author": "Falcons CIC Team",
+  "license": "MIT",
+  "website": "https://falcons-eg.tech"
+}

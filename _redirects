@@ -1,0 +1,6 @@
+# Netlify redirects
+# Game sub-app (keeps in-folder SPA routing)
+/game/*   /game/index.html   200
+
+# Custom 404 for unknown top-level routes
+/*   /404.html   404
