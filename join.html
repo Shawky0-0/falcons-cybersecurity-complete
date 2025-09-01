@@ -136,7 +136,15 @@
                 <div class="bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-2xl p-8 md:p-12">
                     <h2 class="text-3xl font-orbitron font-bold text-center mb-8">Application Form</h2>
                     
-                    <form id="applicationForm" class="space-y-8">
+                    <form id="applicationForm" class="space-y-8" action="https://formsubmit.co/info@falcons-eg.tech" method="POST">
+                        <!-- FormSubmit settings -->
+                        <input type="hidden" name="_subject" value="New Falcons Application" />
+                        <input type="hidden" name="_template" value="table" />
+                        <input type="hidden" name="_captcha" value="false" />
+                        <input type="hidden" name="_next" value="/thanks.html" />
+                        <input type="hidden" name="_replyto" id="_replyto" />
+                        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+                        <input type="hidden" name="timestamp" id="timestamp" />
                         <!-- Personal Information -->
                         <div class="space-y-6">
                             <h3 class="text-xl font-orbitron font-semibold text-cyber-blue mb-4">Personal Information</h3>
@@ -356,6 +364,53 @@
             </div>
         </section>
     </main>
+
+            <script>
+                // Replace this with your deployed Google Apps Script Web App URL
+                const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxyYbiTvEISpRWZYfUqNhFfN1gEpVfh08BiCSDpDURQkhVa53U1KgvT6NfXDOP8YmTU/exec';
+
+            // Add submission timestamp and keep optional local snapshot
+                    document.addEventListener('DOMContentLoaded', function() {
+                const ts = document.getElementById('timestamp');
+                if (ts) ts.value = new Date().toISOString();
+                const form = document.getElementById('applicationForm');
+                    if (form) {
+                        form.addEventListener('submit', function() {
+                            try {
+                                const data = Object.fromEntries(new FormData(form).entries());
+                                // Local in-memory snapshot (for display/testing only)
+                                if (window.FalconsData && typeof window.FalconsData.submitApplication === 'function') {
+                                    window.FalconsData.submitApplication(data);
+                                }
+                                // Send to Google Sheets backend (fire-and-forget)
+                                if (SHEETS_ENDPOINT && SHEETS_ENDPOINT.startsWith('http')) {
+                                    // Prefer CORS-enabled endpoint; fallback to no-cors
+                                    fetch(SHEETS_ENDPOINT, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            submittedAt: new Date().toISOString(),
+                                            ...data
+                                        })
+                                    }).catch(() => {
+                                        try {
+                                            fetch(SHEETS_ENDPOINT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                                        } catch (_) {}
+                                    });
+                                }
+                            } catch (_) {}
+                        });
+                    }
+                        // Ensure replies go to applicant's email
+                        const emailInput = document.getElementById('email');
+                        const replyTo = document.getElementById('_replyto');
+                        if (form && emailInput && replyTo) {
+                            form.addEventListener('submit', function() {
+                                replyTo.value = emailInput.value || '';
+                            });
+                        }
+            });
+        </script>
 
     <!-- Footer -->
     <footer class="relative z-10 bg-gray-900 border-t border-cyber-blue/20 py-16">
