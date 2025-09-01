@@ -125,7 +125,7 @@ We welcome contributions from the community! Please follow these steps:
 
 - **Website**: [https://falcons-eg.tech](https://falcons-eg.tech)
 - **Email**: info@falcons-eg.tech
-- **LinkedIn**: [Falcons CIC](https://www.linkedin.com/company/falcons-cic)
+- **LinkedIn**: [Falcons CIC](https://www.linkedin.com/company/falconscic)
 - **GitHub**: [falcons-eg](https://github.com/falcons-eg)
 
 ## 📄 License
