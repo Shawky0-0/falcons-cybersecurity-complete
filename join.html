@@ -141,7 +141,7 @@
                         <input type="hidden" name="_subject" value="New Falcons Application" />
                         <input type="hidden" name="_template" value="table" />
                         <input type="hidden" name="_captcha" value="false" />
-                        <input type="hidden" name="_next" value="/thanks.html" />
+                        <!-- Optional: _next can be set to a custom URL; removed to use FormSubmit default success page -->
                         <input type="hidden" name="_replyto" id="_replyto" />
                         <!-- Auto-response email to applicant -->
                         <input type="hidden" name="_autoresponse" value="Thanks for applying to Falcons CIC! We’ve received your application and our team will review it within 3–5 business days. You’ll get another email once there’s an update. If you didn’t submit this, you can ignore this message. — Falcons CIC https://falcons-eg.tech" />
@@ -548,7 +548,7 @@
 
                 // Now submit to FormSubmit so emails (incl. autoresponse) are sent
                 form.submit();
-                // No UI reset here because we'll navigate to thanks.html
+                // No UI reset here because the browser will navigate to FormSubmit's success page
             });
             
             // Progress steps animation
