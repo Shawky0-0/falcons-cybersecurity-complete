@@ -1,0 +1,2 @@
+# Disable Jekyll on GitHub Pages so all files and folders (including underscored ones)
+# are published as-is. This also forces a fresh Pages build.
