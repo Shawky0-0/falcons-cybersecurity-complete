@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simplified QR-like SVG. Treat as hint to open /challenge/puzzle/hint.css -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#fff"/>
+  <rect x="16" y="16" width="64" height="64" fill="#000"/>
+  <rect x="176" y="16" width="64" height="64" fill="#000"/>
+  <rect x="16" y="176" width="64" height="64" fill="#000"/>
+  <text x="128" y="140" font-size="14" text-anchor="middle" fill="#000">/challenge/puzzle/hint.css</text>
+</svg>

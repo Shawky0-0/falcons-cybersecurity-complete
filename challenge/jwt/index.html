@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Paper Seal</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-xl w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Paper Seal</h1>
+  <p class="text-gray-300 mb-2">The stamp shines, the ribbon’s perfect, and yet trust is borrowed not earned.</p>
+  <p class="text-gray-300 mb-3">Examine the signature behind the badge and decide who really has authority.</p>
+  <button id="hint-btn" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+  <p id="hint" class="text-gray-400 text-sm mt-2 hidden">Shared-secret tokens can be forged if you know the secret. Role matters.</p>
+      <div class="text-left bg-gray-900/60 border border-gray-700 rounded p-4">
+        <label class="block text-sm mb-1">Token</label>
+  <textarea id="token" class="w-full h-32 px-3 py-2 rounded bg-gray-700 border border-gray-600">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5MDAwMDAwMH0.Lk1_f4k3_t0k3n</textarea>
+  <p class="text-gray-500 text-xs mt-2">Some secrets copy well. Others don’t.</p>
+      </div>
+      <button id="go" class="mt-4 bg-cyan-600 px-4 py-2 rounded">Access</button>
+      <div id="out" class="mt-6 text-left bg-gray-900/60 border border-gray-700 rounded p-4 min-h-[80px]"></div>
+    </div>
+  </main>
+  <script>
+    // Minimal JWT verify with weak shared secret for demo (do not use in real apps)
+    function b64url(s){return btoa(s).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_');}
+    function b64urlDecode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');return atob(s.padEnd(s.length+(4-s.length%4)%4,'='));}
+  async function hmacSHA256(msg, key){const enc=new TextEncoder();const cryptoKey=await crypto.subtle.importKey('raw',enc.encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);const sig=await crypto.subtle.sign('HMAC',cryptoKey,enc.encode(msg));return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_');}
+  const DECOY='secret123';
+  const REAL='paper-seal-signe'; // hidden elsewhere via source map/comment trail
+
+  const out=document.getElementById('out');
+  document.getElementById('hint-btn').addEventListener('click',()=>document.getElementById('hint').classList.remove('hidden'));
+    document.getElementById('go').addEventListener('click', async () => {
+      const token=document.getElementById('token').value.trim();
+      const [h,p,s]=token.split('.');
+      try{
+        const msg=h+'.'+p;
+  const k = (Math.random() < 0.5 ? DECOY : REAL); // misleading runtime noise
+  const sig=await hmacSHA256(msg, REAL);
+        if(sig!==s){ out.textContent='Invalid signature'; return; }
+        const payload=JSON.parse(b64urlDecode(p));
+        if(payload.role==='admin'){
+          out.innerHTML='<div class="text-green-400">Welcome, admin.</div><div>Flag: <strong>FALCONS{jwt_weak_secret_admin}</strong></div>';
+        } else {
+          out.textContent='Access denied: admin only';
+        }
+      }catch(e){ out.textContent='Error parsing token'; }
+    });
+  </script>
+</body>
+</html>

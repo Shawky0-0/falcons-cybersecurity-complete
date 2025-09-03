@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcons CIC — CTF Challenge</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo-new.png" />
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-3xl w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8">
+      <div class="text-center">
+        <img src="../assets/images/logo-new.png" alt="Falcons" class="w-14 h-14 mx-auto mb-4" />
+        <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Falcons CIC — Web CTF</h1>
+        <p class="text-gray-300 mb-6">Pick a challenge. Each page is intentionally vulnerable and contains a unique flag.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+  <a href="/challenge/info/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Warmup • Info Disclosure</div>
+          <div class="font-semibold">Preflight</div>
+        </a>
+  <a href="/challenge/hidden/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Easy • Hidden Files</div>
+          <div class="font-semibold">Shadow Vault</div>
+        </a>
+  <a href="/challenge/xss/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • DOM XSS</div>
+          <div class="font-semibold">Mirror Bite</div>
+        </a>
+  <a href="/challenge/redirect/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Open Redirect</div>
+          <div class="font-semibold">Side Path</div>
+        </a>
+  <a href="/challenge/jwt/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Insecure JWT</div>
+          <div class="font-semibold">Paper Seal</div>
+        </a>
+  <a href="/challenge/cors/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Misconfigured CORS</div>
+          <div class="font-semibold">Open Skies</div>
+        </a>
+  <a href="/challenge/xxe/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Hard • XXE</div>
+          <div class="font-semibold">Hungry Parser</div>
+        </a>
+  <a href="/challenge/git/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Hard • Exposed .git</div>
+          <div class="font-semibold">Buried Logs</div>
+        </a>
+  <a href="/challenge/advanced/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600 md:col-span-2">
+          <div class="text-sm text-gray-400">Hard • Source Map Leak</div>
+          <div class="font-semibold">Unmasked Map</div>
+        </a>
+  <a href="/challenge/clickjacking/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Clickjacking</div>
+          <div class="font-semibold">Glass Switch</div>
+        </a>
+  <a href="/challenge/obfuscation/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Obfuscated JavaScript</div>
+          <div class="font-semibold">Knotted Tongue</div>
+        </a>
+  <a href="/challenge/stego/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Steganography</div>
+          <div class="font-semibold">Painted Echo</div>
+        </a>
+  <a href="/challenge/crypto/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Easy • Weak Crypto</div>
+          <div class="font-semibold">Phantom Key</div>
+        </a>
+  <a href="/challenge/mixed/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Hard • Mixed Content</div>
+          <div class="font-semibold">Rusty Gate</div>
+        </a>
+  <a href="/challenge/puzzle/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Puzzle Chain</div>
+          <div class="font-semibold">Crumb Compass</div>
+        </a>
+  <a href="/challenge/css-exfil/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • CSS Exfil</div>
+          <div class="font-semibold">Silk Gossip</div>
+        </a>
+  <a href="/challenge/login-flaw/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Easy • Logic Flaw</div>
+          <div class="font-semibold">Costume Check</div>
+        </a>
+  <a href="/challenge/cache/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Medium • Cache Trick</div>
+          <div class="font-semibold">Stale Ink</div>
+        </a>
+  <a href="/challenge/encoding/" class="block bg-gray-900/60 border border-gray-700 rounded-lg p-4 hover:border-cyan-600">
+          <div class="text-sm text-gray-400">Easy • Encoding Maze</div>
+          <div class="font-semibold">Babel Tower</div>
+        </a>
+      </div>
+      <div class="text-center mt-8">
+        <a href="../index.html" class="inline-block bg-gradient-to-r from-cyan-400 to-purple-600 px-6 py-2 rounded-full font-semibold hover:shadow-lg hover:shadow-cyan-500/20 transition-all">Back to Home</a>
+      </div>
+      <p class="text-gray-500 text-xs mt-6">Rules: Educational only; be gentle; stay within these paths.</p>
+    </div>
+  </main>
+</body>
+</html>

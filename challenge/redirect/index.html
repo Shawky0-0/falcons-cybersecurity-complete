@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Side Path</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-md w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Side Path</h1>
+  <p class="text-gray-300 mb-2">The signboard points the way, but anyone could have moved it overnight.</p>
+  <p class="text-gray-300 mb-3">Pick your landing carefully; some destinations weren’t meant for arrivals.</p>
+  <button id="hint-btn" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+  <p id="hint" class="text-gray-400 text-sm mt-2 hidden">The next page is chosen by a query parameter. Choose it yourself.</p>
+      <form id="login" class="space-y-3">
+        <input class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600" placeholder="Username">
+        <input type="password" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600" placeholder="Password">
+        <button class="w-full bg-cyan-600 px-4 py-2 rounded">Sign in</button>
+      </form>
+      <p class="text-gray-400 text-sm mt-4">Hint: ?next= points to where you land after login.</p>
+    </div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    let next = params.get('next') || '../../index.html';
+    // Weak validation: block explicit http(s): but allow //host (scheme-relative)
+    if (/^https?:\/\//i.test(next)) {
+      next = '../../index.html';
+    }
+  document.getElementById('hint-btn').addEventListener('click',()=>document.getElementById('hint').classList.remove('hidden'));
+  document.getElementById('login').addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Vulnerable: trusts next param blindly
+      location.href = next;
+    });
+  </script>
+</body>
+</html>

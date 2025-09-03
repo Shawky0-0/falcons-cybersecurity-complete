@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Costume Check</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-md w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Costume Check</h1>
+  <p class="text-gray-300 mb-2">The guard only pretends to validate uniforms at the door.</p>
+  <p class="text-gray-300 text-sm">Look closely at how the decision is made on the client.</p>
+      <button id="hint-btn" class="mt-2 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+      <p id="hint" class="text-gray-400 text-sm mt-2 hidden">Inspect the page source/JS. The valid pair is hardcoded; no server call needed.</p>
+      <form id="f" class="space-y-3">
+        <input id="u" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600" placeholder="Username">
+        <input id="p" type="password" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600" placeholder="Password">
+        <button class="w-full bg-cyan-600 px-4 py-2 rounded">Sign in</button>
+      </form>
+      <pre id="out" class="mt-4 text-left bg-gray-900/60 border border-gray-700 rounded p-4 min-h-[80px]"></pre>
+    </div>
+  </main>
+  <script>
+    // Hash-based check (look around for hints) //# sourceMappingURL=login.js.map
+    async function sha256(s){
+      const enc=new TextEncoder();
+      const buf=await crypto.subtle.digest('SHA-256',enc.encode(s));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    document.getElementById('f').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const user = document.getElementById('u').value;
+      const pass = document.getElementById('p').value;
+        const h = await sha256(user+':'+pass);
+        if (h==="23337232fae7c495b3c3416033ec48ed9f66e50deeab1f13488a848acb1e7c7b") {
+          out.textContent = 'FALCONS{client_side_logic_flaw}';
+        } else {
+          out.textContent = 'Invalid credentials';
+        }
+    });
+  </script>
+  <script>
+    document.getElementById('hint-btn').addEventListener('click',()=>{
+      document.getElementById('hint').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>

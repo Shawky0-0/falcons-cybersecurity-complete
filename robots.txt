@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /._backup/
+
+# audit-note: crawler tag
+# featherlock-042User-agent: *
+Disallow: /._backup/
+Disallow: /.well-known/
+Sitemap: /sitemap.xml
+
+# Nothing to see here. Backup tag: featherlock-042

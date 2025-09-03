@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Mirror Bite</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Mirror Bite</h1>
+  <p class="text-gray-300 mb-2">The display echoes whatever you say, a little too literally for comfort.</p>
+  <p class="text-gray-300 mb-3">Persuade the mirror to speak beyond its lines and it may leak more than text.</p>
+      <form id="searchForm" class="flex justify-center gap-3 mb-4">
+        <input id="q" name="q" class="px-3 py-2 rounded bg-gray-700 border border-gray-600 w-64" placeholder="Search...">
+        <button class="bg-cyan-600 px-4 py-2 rounded">Search</button>
+      </form>
+  <div id="results" class="text-left bg-gray-900/60 border border-gray-700 rounded p-4 min-h-[100px]"></div>
+  <iframe id="secretFrame" srcdoc="&lt;div style=font-family:monospace&gt;Flag: &lt;span id=flag&gt;FALCONS{dom_xss_innerHTML_sink}&lt;/span&gt;&lt;/div&gt;" class="sr-only"></iframe>
+  <button id="hint-btn" type="button" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+  <p id="hint" class="text-gray-400 text-sm mt-2 hidden">User input lands in innerHTML. Craft something the DOM will execute.</p>
+    </div>
+  </main>
+  <script>
+  // Flag is now inside a hidden iframe; must be read via XSS gadget
+    const form = document.getElementById('searchForm');
+    const q = document.getElementById('q');
+    const results = document.getElementById('results');
+  document.getElementById('hint-btn').addEventListener('click',()=>document.getElementById('hint').classList.remove('hidden'));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const term = q.value || '';
+      // Vulnerable: directly using innerHTML with user input
+      results.innerHTML = `<div>Results for: <strong>${term}</strong></div>`;
+    });
+  </script>
+</body>
+</html>

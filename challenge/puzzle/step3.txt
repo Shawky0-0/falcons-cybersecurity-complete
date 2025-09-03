@@ -1,0 +1,3 @@
+YOU WILL FIND THE PATH IN DOTS AND DASHES. DECODE, THEN VISIT:
+..-. .. .-.. . ....- -.... .-.-.- - .... .-.-.- -.. .-.-.- - .... .-.-.- -.. .-.-.- - .-.. .-.-.- .- --. 
+HINT: Group the Morse carefully. The result is a relative path under this folder.

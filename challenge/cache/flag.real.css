@@ -1,0 +1,4 @@
+/* Real flag version served when ?v=real */
+/* This is intentionally CSS but contains HTML comment below to mimic content-type quirks */
+/* <h1>FALCONS{content_type_mismatch_cache_bust}</h1> */
+:root{--flag:"FALCONS{content_type_mismatch_cache_bust}";}

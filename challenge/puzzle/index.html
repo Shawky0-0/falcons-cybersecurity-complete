@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Crumb Compass</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-xl w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Crumb Compass</h1>
+  <p class="text-gray-300 mb-2">The trail is layered: a scan starts the path, but the path keeps splitting.</p>
+  <p class="text-gray-300 text-sm">Decode what you see, then what you don’t, then what you hear.</p>
+      <button id="hint-btn" class="mt-2 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+      <p id="hint" class="text-gray-400 text-sm mt-2 hidden">Scan the QR and then decode any additional layers (e.g., base64 in the URL or QR payload).</p>
+  <a class="inline-block bg-cyan-600 px-4 py-2 rounded" href="./qr.svg" download>Download QR</a>
+  <div class="mt-3 text-xs text-gray-500">Style can whisper too: <a href="./hint.css" class="underline">hint.css</a></div>
+    </div>
+  </main>
+</body>
+</html>

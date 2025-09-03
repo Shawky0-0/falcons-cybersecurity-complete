@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Glass Switch</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <style>
+    /* Deliberate clickjacking: invisible overlay blocking the button */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 50; }
+    .reveal { position: relative; z-index: 10; }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-md w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Glass Switch</h1>
+  <p class="text-gray-300 mb-2">A clear pane stands between you and the toggle, but the UI still responds.</p>
+  <p class="text-gray-300 text-sm">Find a way to activate the control without using the obvious path.</p>
+      <button id="hint-btn" class="mb-3 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+      <p id="hint" class="text-gray-400 text-sm -mt-1 mb-2 hidden">Think keyboard navigation, CSS tweaks, or removing overlays via devtools.</p>
+      <form id="secure" class="reveal space-x-2 inline-flex items-center">
+        <input type="hidden" id="csrf" name="csrf" value="" />
+        <button class="bg-cyan-600 px-4 py-2 rounded" id="btn">Reveal Flag</button>
+      </form>
+      <div id="flag" class="mt-4 text-green-400 hidden">FALCONS{click_through_to_win}</div>
+    </div>
+  </main>
+  <div class="overlay" id="overlay"></div>
+  <script>
+    // Players must bypass overlay (e.g., devtools remove, or use keyboard focus/Enter)
+    // Require CSRF token
+    const token = Math.random().toString(36).slice(2);
+    document.getElementById('csrf').value = token;
+    document.getElementById('secure').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const provided = document.getElementById('csrf').value;
+      if(provided===token){
+        document.getElementById('flag').classList.remove('hidden');
+      }
+    });
+    document.getElementById('hint-btn').addEventListener('click',()=>{
+      document.getElementById('hint').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>

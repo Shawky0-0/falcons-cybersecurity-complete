@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF — Rusty Gate</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="../../assets/images/logo-new.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-gray-800/60 border border-gray-700 rounded-2xl p-8 text-center">
+  <h1 class="text-3xl font-orbitron font-bold text-cyan-300 mb-2">Rusty Gate</h1>
+  <p class="text-gray-300 mb-2">A secure fence surrounds a forgotten wooden gate that never got upgraded.</p>
+  <p class="text-gray-300 text-sm">Where protocols mismatch, secrets squeak through.</p>
+      <button id="hint-btn" class="mt-2 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Show Hint</button>
+      <p id="hint" class="text-gray-400 text-sm mt-2 hidden">Load over HTTP, not HTTPS, to fetch the insecure script that prints the flag.</p>
+      <pre id="out" class="mt-4 text-left bg-gray-900/60 border border-gray-700 rounded p-4 min-h-[80px]"></pre>
+    </div>
+  </main>
+  <script>
+    (function(){
+      var s = document.createElement('script');
+      s.src = 'http://' + location.host + '/challenge/mixed/insecure-flag.js';
+      s.onerror = function(){ document.getElementById('out').textContent = 'Blocked in HTTPS (expected). Try over HTTP.' };
+      document.body.appendChild(s);
+    })();
+  </script>
+  <script>
+    document.getElementById('hint-btn').addEventListener('click',()=>{
+      document.getElementById('hint').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
