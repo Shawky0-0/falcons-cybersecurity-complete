@@ -1,0 +1,3 @@
+published: true
+path: /challenge/publish-check.txt
+commit: verify GH Pages folder publish
